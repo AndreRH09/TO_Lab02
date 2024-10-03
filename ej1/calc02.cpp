@@ -8,6 +8,7 @@ class OperacionBase
 {
 public:
     virtual int realizar(int a, int b) = 0; // Método virtual puro
+    virtual int precedencia() const = 0;    // Precedencia de la operación
 };
 
 class Suma : public OperacionBase
@@ -16,6 +17,10 @@ public:
     int realizar(int a, int b) override
     {
         return a + b;
+    }
+    int precedencia() const override
+    {
+        return 1; // Precedencia baja
     }
 };
 
@@ -26,6 +31,10 @@ public:
     {
         return a - b;
     }
+    int precedencia() const override
+    {
+        return 1; // Precedencia baja
+    }
 };
 
 class Multiplicacion : public OperacionBase
@@ -35,6 +44,10 @@ public:
     {
         return a * b;
     }
+    int precedencia() const override
+    {
+        return 2; // Precedencia alta
+    }
 };
 
 class Division : public OperacionBase
@@ -43,6 +56,10 @@ public:
     int realizar(int a, int b) override
     {
         return (b != 0) ? a / b : 0;
+    }
+    int precedencia() const override
+    {
+        return 2; // Precedencia alta
     }
 };
 
@@ -116,11 +133,25 @@ public:
             return; // Salir si se excedió el límite de números
         }
 
+        // Primero resolver multiplicaciones y divisiones
+        for (size_t i = 0; i < operaciones.size(); ++i)
+        {
+            if (operaciones[i]->precedencia() == 2)
+            { // Precedencia alta: *, /
+                numeros[i] = operaciones[i]->realizar(numeros[i], numeros[i + 1]);
+                numeros.erase(numeros.begin() + i + 1);     // Eliminar el segundo número
+                operaciones.erase(operaciones.begin() + i); // Eliminar la operación realizada
+                --i;                                        // Retroceder el índice para evitar saltar una operación
+            }
+        }
+
+        // Luego resolver sumas y restas
         int resultado = numeros[0];
         for (size_t i = 0; i < operaciones.size(); ++i)
         {
             resultado = operaciones[i]->realizar(resultado, numeros[i + 1]);
         }
+
         cout << "El resultado de la operación '" << operacion << "' es: " << resultado << endl;
     }
 };

@@ -4,81 +4,58 @@
 #include <cctype>
 using namespace std;
 
-class Analizador
+int realizarOperacion(int a, int b, char op)
 {
-public:
-    void analizarOperacion(const string &operacion, vector<int> &numeros, vector<char> &operadores)
+    switch (op)
     {
-        istringstream iss(operacion);
-        string token;
-        size_t pos = 0;
-        while (pos < operacion.length())
-        {
-            while (isdigit(operacion[pos]))
-            {
-                token += operacion[pos++];
-            }
-            if (!token.empty())
-            {
-                numeros.push_back(stoi(token));
-                token.clear();
-            }
-            if (pos < operacion.length() && (operacion[pos] == '+' || operacion[pos] == '-' || operacion[pos] == '*' || operacion[pos] == '/'))
-            {
-                operadores.push_back(operacion[pos++]);
-            }
-        }
+    case '+':
+        return a + b;
+    case '-':
+        return a - b;
+    case '*':
+        return a * b;
+    case '/':
+        return (b != 0) ? a / b : 0;
+    default:
+        return 0;
     }
-};
-class Operaciones
-{
-public:
-    int realizarOperacion(int a, int b, char op)
-    {
-        switch (op)
-        {
-        case '+':
-            return a + b;
-        case '-':
-            return a - b;
-        case '*':
-            return a * b;
-        case '/':
-            return (b != 0) ? a / b : 0;
-        default:
-            return 0;
-        }
-    }
-};
-class Calculadora
-{
-private:
-    Analizador analizador;
-    Operaciones operaciones;
+}
 
-public:
-    void procesarOperacion(const string &operacion)
+void procesarOperacion(const string &operacion)
+{
+    vector<int> numeros;
+    vector<char> operadores;
+    string token;
+    size_t pos = 0;
+    while (pos < operacion.length())
     {
-        vector<int> numeros;
-        vector<char> operadores;
-        analizador.analizarOperacion(operacion, numeros, operadores);
-        int resultado = numeros[0];
-        for (size_t i = 0; i < operadores.size(); ++i)
+        while (isdigit(operacion[pos]))
         {
-            resultado = operaciones.realizarOperacion(resultado, numeros[i + 1], operadores[i]);
+            token += operacion[pos++];
         }
-        cout << "El resultado de la operación '" << operacion << "' es: " << resultado << endl;
+        if (!token.empty())
+        {
+            numeros.push_back(stoi(token));
+            token.clear();
+        }
+        if (pos < operacion.length() && (operacion[pos] == '+' || operacion[pos] == '-' || operacion[pos] == '*' || operacion[pos] == '/'))
+        {
+            operadores.push_back(operacion[pos++]);
+        }
     }
-};
+    int resultado = numeros[0];
+    for (size_t i = 0; i < operadores.size(); ++i)
+    {
+        resultado = realizarOperacion(resultado, numeros[i + 1], operadores[i]);
+    }
+    cout << "El resultado de la operación '" << operacion << "' es: " << resultado << endl;
+}
+
 int main()
 {
-    Calculadora calc;
     string operacion;
-
     cout << "Ingrese una operación (hasta 6 números): ";
     getline(cin, operacion);
-
-    calc.procesarOperacion(operacion);
-
+    procesarOperacion(operacion);
     return 0;
 }
